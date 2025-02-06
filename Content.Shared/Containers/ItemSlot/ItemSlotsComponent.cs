@@ -116,6 +116,12 @@ namespace Content.Shared.Containers.ItemSlots
         [ViewVariables(VVAccess.ReadWrite)]
         public bool Locked = false;
 
+
+        //Goob change
+        [DataField(readOnly: true)]
+        [ViewVariables(VVAccess.ReadWrite)]
+        public bool HideEjectVerb = false;
+
         /// <summary>
         /// Prevents adding the eject alt-verb, but still lets you swap items.
         /// </summary>
@@ -262,6 +268,8 @@ namespace Content.Shared.Containers.ItemSlots
             InsertSuccessPopup = other.InsertSuccessPopup;
             Swap = other.Swap;
             Priority = other.Priority;
+            DisableEject = other.DisableEject; //goob change
+            HideEjectVerb = other.HideEjectVerb; //goob change
         }
     }
 

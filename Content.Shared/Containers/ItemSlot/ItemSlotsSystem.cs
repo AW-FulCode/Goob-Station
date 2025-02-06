@@ -691,7 +691,7 @@ namespace Content.Shared.Containers.ItemSlots
             // Add the eject-item verbs
             foreach (var slot in itemSlots.Slots.Values)
             {
-                if (slot.EjectOnInteract || slot.DisableEject)
+                if (slot.EjectOnInteract || slot.DisableEject || slot.HideEjectVerb) //goob change
                     // For this item slot, ejecting/inserting is a primary interaction. Instead of an eject category
                     // alt-click verb, there will be a "Take item" primary interaction verb.
                     continue;
@@ -737,6 +737,9 @@ namespace Content.Shared.Containers.ItemSlots
             // If there are any slots that eject on left-click, add a "Take <item>" verb.
             foreach (var slot in itemSlots.Slots.Values)
             {
+                if (slot.HideEjectVerb) //goob change
+                    continue;
+
                 if (!slot.EjectOnInteract || !CanEject(uid, args.User, slot))
                     continue;
 

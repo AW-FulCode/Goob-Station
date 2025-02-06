@@ -30,7 +30,9 @@ namespace Content.Shared._Goobstation.SmartStorageMachines
         [DataField, AutoNetworkedField]
         public Dictionary<NetEntity, SmartStorageMachineInventoryEntry> Inventory = new();
 
+        [DataField]
         public List<ItemSlot> StorageSlots = new List<ItemSlot>();
+        [DataField]
         public List<string> StorageSlotIds = new List<string>();
 
         public static string BaseStorageSlotId = "SmartStorage-storageSlot";
