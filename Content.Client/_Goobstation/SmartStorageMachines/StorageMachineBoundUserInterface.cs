@@ -13,7 +13,7 @@ namespace Content.Client._Goobstation.SmartStorageMachines
         private SmartStorageMachineMenu? _menu;
 
         [ViewVariables]
-        private List<EntityUid> _cachedInventory = new();
+        private Dictionary<NetEntity, SmartStorageMachineInventoryEntry> _cachedInventory = new();
 
         public SmartStorageMachineBoundUserInterface(EntityUid owner, Enum uiKey) : base(owner, uiKey)
         {
@@ -51,10 +51,10 @@ namespace Content.Client._Goobstation.SmartStorageMachines
 
             var selectedItem = _cachedInventory.ElementAtOrDefault(itemIndex);
 
-            if (selectedItem == null)
+            if (selectedItem.Key == null)
                 return;
 
-            SendMessage(new SmartStorageMachineEjectMessage(selectedItem));
+            SendMessage(new SmartStorageMachineEjectMessage(selectedItem.Key));
         }
 
         protected override void Dispose(bool disposing)

@@ -5,17 +5,18 @@ namespace Content.Shared._Goobstation.SmartStorageMachines;
 public abstract partial class SharedSmartStorageMachineSystem : EntitySystem
 {
 
-    public List<EntityUid> GetAllInventory(EntityUid uid, SmartStorageMachineComponent? component = null)
+    public Dictionary<NetEntity, SmartStorageMachineInventoryEntry> GetAllInventory(EntityUid uid, SmartStorageMachineComponent? component = null)
     {
         if (!Resolve(uid, ref component))
             return new();
 
-        var inventory = component.Inventory.Keys.ToList();
+        var inventory = component.Inventory;
 
         return inventory;
     }
 
-    public List<EntityUid> GetAvailableInventory(EntityUid uid, SmartStorageMachineComponent? component = null)
+    //TODO do we need this? probably not consider removal
+    public Dictionary<NetEntity, SmartStorageMachineInventoryEntry> GetAvailableInventory(EntityUid uid, SmartStorageMachineComponent? component = null)
     {
         if (!Resolve(uid, ref component))
             return new();

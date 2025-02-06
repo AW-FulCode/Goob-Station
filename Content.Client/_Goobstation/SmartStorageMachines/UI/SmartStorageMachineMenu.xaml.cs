@@ -78,7 +78,7 @@ namespace Content.Client._Goobstation.SmartStorageMachines.UI
         /// Populates the list of available items on the smartstorage machine interface
         /// and sets icons based on their prototypes
         /// </summary>
-        public void Populate(List<EntityUid> inventory)
+        public void Populate(Dictionary<NetEntity, SmartStorageMachineInventoryEntry> inventory)
         {
             /*if (inventory.Count == 0 && SmartStorageContents.Visible)
             {
@@ -87,7 +87,7 @@ namespace Content.Client._Goobstation.SmartStorageMachines.UI
 
                 var outOfStockLabel = new Label()
                 {
-                    Text = Loc.GetString("smartstorage-machine-component-try-eject-out-of-stock"),
+                    Text = Loc.GetString("vending-machine-component-try-eject-out-of-stock"),
                     Margin = new Thickness(4, 4),
                     HorizontalExpand = true,
                     VerticalAlignment = VAlignment.Stretch,

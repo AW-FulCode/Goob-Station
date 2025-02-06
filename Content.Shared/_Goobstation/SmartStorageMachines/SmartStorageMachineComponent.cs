@@ -27,7 +27,7 @@ namespace Content.Shared._Goobstation.SmartStorageMachines
         public float EjectDelay = 1.2f;
 
         [DataField, AutoNetworkedField]
-        public Dictionary<EntityUid, SmartStorageMachineInventoryEntry> Inventory = new();
+        public Dictionary<NetEntity, SmartStorageMachineInventoryEntry> Inventory = new();
 
         public bool Ejecting;
         public bool Denying;

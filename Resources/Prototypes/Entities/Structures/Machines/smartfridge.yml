@@ -36,6 +36,16 @@
       path: /Audio/Machines/windoor_open.ogg
       params:
         volume: -3
+  - type: SmartStorageMachine
+  - type: ActivatableUI
+    key: enum.SmartStorageMachineUiKey.Key
+  - type: ActivatableUIRequiresPower
+  - type: UserInterface
+    interfaces:
+      enum.SmartStorageMachineUiKey.Key:
+        type: SmartStorageMachineBoundUserInterface
+      enum.WiresUiKey.Key:
+        type: WiresBoundUserInterface
   - type: ContainerContainer
     containers:
       entity_storage: !type:Container

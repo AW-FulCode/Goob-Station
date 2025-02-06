@@ -186,12 +186,12 @@ namespace Content.Server._Goobstation.SmartStorageMachines
         /// <param name="uid"></param>
         /// <param name="sender">Entity trying to use the SmartStorage machine</param>
         /// <param name="vendComponent"></param>
-        public bool IsAuthorized(EntityUid uid, EntityUid sender, EntityUid item, SmartStorageMachineComponent? vendComponent = null)
+        public bool IsAuthorized(EntityUid uid, EntityUid sender, NetEntity item, SmartStorageMachineComponent? vendComponent = null)
         {
             if (!Resolve(uid, ref vendComponent))
                 return false;
 
-            if (!TryComp<AccessReaderComponent>(item, out var accessReader))
+            if (!TryComp<AccessReaderComponent>(GetEntity(item), out var accessReader))
                 return true;
 
             //TODO give each potential storage item accessReader? Possibly on insertion (that works)
@@ -212,7 +212,7 @@ namespace Content.Server._Goobstation.SmartStorageMachines
         /// <param name="item">The item entity</param>
         /// <param name="throwItem">Whether the item should be thrown in a random direction after ejection</param>
         /// <param name="vendComponent"></param>
-        public void TryEjectVendorItem(EntityUid uid, EntityUid item, bool throwItem, SmartStorageMachineComponent? vendComponent = null)
+        public void TryEjectVendorItem(EntityUid uid, NetEntity item, bool throwItem, SmartStorageMachineComponent? vendComponent = null)
         {
             if (!Resolve(uid, ref vendComponent))
                 return;
@@ -264,7 +264,7 @@ namespace Content.Server._Goobstation.SmartStorageMachines
         /// <param name="type">The type of inventory the item is from</param>
         /// <param name="item">The item being requested</param>
         /// <param name="component"></param>
-        public void AuthorizedVend(EntityUid uid, EntityUid sender, EntityUid item, SmartStorageMachineComponent component)
+        public void AuthorizedVend(EntityUid uid, EntityUid sender, NetEntity item, SmartStorageMachineComponent component)
         {
             if (IsAuthorized(uid, sender, item, component))
             {
@@ -330,14 +330,14 @@ namespace Content.Server._Goobstation.SmartStorageMachines
                 //TODO fix GetAvailableInventory to return InventoryEntry again (AND entity uid)
                 //vendComponent.NextItemToEject = item;
                 vendComponent.ThrowNextItem = throwItem;
-                var entry = GetEntry(uid, item, vendComponent);
+                var entry = GetEntry(uid, item.Key, vendComponent);
                 if (entry != null)
                     entry.Amount--;
                 EjectItem(uid, vendComponent, forceEject);
             }
             else
             {
-                TryEjectVendorItem(uid, item, throwItem, vendComponent);
+                TryEjectVendorItem(uid, item.Key, throwItem, vendComponent);
             }
         }
 
@@ -372,7 +372,7 @@ namespace Content.Server._Goobstation.SmartStorageMachines
             vendComponent.ThrowNextItem = false;
         }
 
-        private SmartStorageMachineInventoryEntry? GetEntry(EntityUid uid, EntityUid entry, SmartStorageMachineComponent? component = null)
+        private SmartStorageMachineInventoryEntry? GetEntry(EntityUid uid, NetEntity entry, SmartStorageMachineComponent? component = null)
         {
             if (!Resolve(uid, ref component))
                 return null;
