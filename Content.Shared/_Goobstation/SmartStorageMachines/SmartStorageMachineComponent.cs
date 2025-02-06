@@ -160,14 +160,15 @@ namespace Content.Shared._Goobstation.SmartStorageMachines
     [Serializable, NetSerializable]
     public sealed class SmartStorageMachineInventoryEntry
     {
-        [ViewVariables(VVAccess.ReadWrite)]
         public string ID;
-        [ViewVariables(VVAccess.ReadWrite)]
-        public uint Amount;
-        public SmartStorageMachineInventoryEntry(string id, uint amount)
+        public string Name;
+        public bool PublicAccess;
+        
+        public SmartStorageMachineInventoryEntry(string name, string id)
         {
             ID = id;
-            Amount = amount;
+            Name = name;
+            PublicAccess = false;
         }
     }
 

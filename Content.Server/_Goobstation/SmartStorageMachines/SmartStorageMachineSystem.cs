@@ -26,6 +26,7 @@ using Robust.Server.Audio;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
 using Robust.Shared.Timing;
+using Content.Shared.Interaction;
 
 namespace Content.Server._Goobstation.SmartStorageMachines
 {
@@ -59,7 +60,8 @@ namespace Content.Server._Goobstation.SmartStorageMachines
             });
 
             SubscribeLocalEvent<SmartStorageMachineComponent, SmartStorageMachineSelfDispenseEvent>(OnSelfDispense);
-
+            
+            SubscribeLocalEvent<SmartStorageMachineComponent, InteractUsingEvent>(OnInteractUsing);
         }
 
         private void OnMapInit(EntityUid uid, SmartStorageMachineComponent component, MapInitEvent args)
@@ -134,9 +136,9 @@ namespace Content.Server._Goobstation.SmartStorageMachines
             EjectRandom(uid, throwItem: true, forceEject: false, component);
         }
 
-        private void OnDoAfter(EntityUid uid, SmartStorageMachineComponent component, DoAfterEvent args)
+        private void OnInteractUsing(EntityUid uid, SmartStorageMachineComponent component, InteractUsingEvent args)
         {
-            if (args.Handled || args.Cancelled || args.Args.Used == null)
+            if (args.Handled || args.Used == null)
                 return;
 
             //TODO check if item has a listed tag
@@ -147,6 +149,7 @@ namespace Content.Server._Goobstation.SmartStorageMachines
             //}
 
             //TODO add function for adding individual items
+            TryAddItemToSmartStorage(uid, args.Used, component);
 
             //TODO change to more appropriate sounds/message
             //_popup.PopupEntity(Loc.GetString("vending-machine-restock-done", ("this", args.Args.Used), ("user", args.Args.User), ("target", uid)), args.Args.User, PopupType.Medium);
@@ -154,6 +157,17 @@ namespace Content.Server._Goobstation.SmartStorageMachines
             //_audio.PlayPvs(restockComponent.SoundRestockDone, uid, AudioParams.Default.WithVolume(-2f).WithVariation(0.2f));
 
             args.Handled = true;
+        }
+
+        public void TryAddItemToSmartStorage(EntityUid uid, EntityUid item, SmartStorageMachineComponent? vendComponent = null)
+        {
+            if (!Resolve(uid, ref vendComponent))
+                return;
+
+            AddItemToSmartStorage(uid, item, vendComponent);
+
+            Dirty(uid, vendComponent);
+            TryUpdateVisualState(uid, vendComponent);
         }
 
         /// <summary>
@@ -231,26 +245,18 @@ namespace Content.Server._Goobstation.SmartStorageMachines
                 return;
             }
 
-            if (entry.Amount <= 0)
-            {
-                _popup.PopupEntity(Loc.GetString("vending-machine-component-try-eject-out-of-stock"), uid);
-                Deny(uid, vendComponent);
-                return;
-            }
-
-            if (string.IsNullOrEmpty(entry.ID))
+            if (string.IsNullOrEmpty(entry.Name))
                 return;
 
 
             // Start Ejecting, and prevent users from ordering while anim playing
             vendComponent.Ejecting = true;
-            vendComponent.NextItemToEject = entry.ID;
+            vendComponent.NextItemToEject = entry.Name;
             vendComponent.ThrowNextItem = throwItem;
 
             if (TryComp(uid, out SpeakOnUIClosedComponent? speakComponent))
                 _speakOnUIClosed.TrySetFlag((uid, speakComponent));
 
-            entry.Amount--;
             Dirty(uid, vendComponent);
             TryUpdateVisualState(uid, vendComponent);
             _audio.PlayPvs(vendComponent.SoundVend, uid);
@@ -331,8 +337,6 @@ namespace Content.Server._Goobstation.SmartStorageMachines
                 //vendComponent.NextItemToEject = item;
                 vendComponent.ThrowNextItem = throwItem;
                 var entry = GetEntry(uid, item.Key, vendComponent);
-                if (entry != null)
-                    entry.Amount--;
                 EjectItem(uid, vendComponent, forceEject);
             }
             else

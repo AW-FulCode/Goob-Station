@@ -80,55 +80,33 @@ namespace Content.Client._Goobstation.SmartStorageMachines.UI
         /// </summary>
         public void Populate(Dictionary<NetEntity, SmartStorageMachineInventoryEntry> inventory)
         {
-            /*if (inventory.Count == 0 && SmartStorageContents.Visible)
-            {
-                SearchBar.Visible = false;
-                SmartStorageContents.Visible = false;
-
-                var outOfStockLabel = new Label()
-                {
-                    Text = Loc.GetString("vending-machine-component-try-eject-out-of-stock"),
-                    Margin = new Thickness(4, 4),
-                    HorizontalExpand = true,
-                    VerticalAlignment = VAlignment.Stretch,
-                    HorizontalAlignment = HAlignment.Center
-                };
-
-                MainContainer.AddChild(outOfStockLabel);
-
-                SetSizeAfterUpdate(outOfStockLabel.Text.Length, 0);
-
-                return;
-            }
-
             var longestEntry = string.Empty;
             var listData = new List<SmartStoreItemsListData>();
-
-            for (var i = 0; i < inventory.Count; i++)
+            var index = 0;
+            foreach (KeyValuePair<NetEntity, SmartStorageMachineInventoryEntry> entry in inventory)
             {
-                var entry = inventory[i];
-
-                if (!_prototypeManager.TryIndex(entry.ID, out var prototype))
+                
+                if (!_prototypeManager.TryIndex(entry.Value.ID, out var prototype))
                     continue;
 
-                if (!_dummies.TryGetValue(entry.ID, out var dummy))
+                if (!_dummies.TryGetValue(entry.Value.ID, out var dummy))
                 {
-                    dummy = _entityManager.Spawn(entry.ID);
-                    _dummies.Add(entry.ID, dummy);
+                    dummy = _entityManager.Spawn(entry.Value.ID);
+                    _dummies.Add(entry.Value.ID, dummy);
                 }
 
-                var itemName = Identity.Name(dummy, _entityManager);
-                var itemText = $"{itemName} [{entry.Amount}]";
+                var itemName = entry.Value.Name;
 
-                if (itemText.Length > longestEntry.Length)
-                    longestEntry = itemText;
+                if (itemName.Length > longestEntry.Length)
+                    longestEntry = itemName;
 
-                listData.Add(new SmartStoreItemsListData(prototype.ID, itemText, i));
+                listData.Add(new SmartStoreItemsListData(prototype.ID, itemName, index));
+                index++;
             }
 
             SmartStorageContents.PopulateList(listData);
 
-            SetSizeAfterUpdate(longestEntry.Length, inventory.Count);*/
+            SetSizeAfterUpdate(longestEntry.Length, inventory.Count);
         }
 
         private void SetSizeAfterUpdate(int longestEntryLength, int contentCount)
