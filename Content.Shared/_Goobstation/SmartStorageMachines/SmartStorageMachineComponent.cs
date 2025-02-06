@@ -4,6 +4,7 @@ using Robust.Shared.GameStates;
 using Robust.Shared.Serialization;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
+using Content.Shared.Containers.ItemSlots;
 
 namespace Content.Shared._Goobstation.SmartStorageMachines
 {
@@ -28,6 +29,14 @@ namespace Content.Shared._Goobstation.SmartStorageMachines
 
         [DataField, AutoNetworkedField]
         public Dictionary<NetEntity, SmartStorageMachineInventoryEntry> Inventory = new();
+
+        public List<ItemSlot> StorageSlots = new List<ItemSlot>();
+        public List<string> StorageSlotIds = new List<string>();
+
+        public static string BaseStorageSlotId = "SmartStorage-storageSlot";
+
+        [DataField("numStorageSlots")]
+        public int NumSlots = 200;
 
         public bool Ejecting;
         public bool Denying;

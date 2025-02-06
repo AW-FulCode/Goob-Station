@@ -5,6 +5,7 @@ using Robust.Shared.GameStates;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
+using Content.Shared._Goobstation.SmartStorageMachines; //goob smartstorage
 
 namespace Content.Shared.Containers.ItemSlots
 {
@@ -56,7 +57,7 @@ namespace Content.Shared.Containers.ItemSlots
     ///     insert/eject sounds.
     /// </summary>
     [DataDefinition]
-    [Access(typeof(ItemSlotsSystem))]
+    [Access(typeof(ItemSlotsSystem), typeof(SharedSmartStorageMachineSystem))] //goob smartstorage
     [Serializable, NetSerializable]
     public sealed partial class ItemSlot
     {

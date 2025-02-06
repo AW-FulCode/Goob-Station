@@ -27,6 +27,9 @@ using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
 using Robust.Shared.Timing;
 using Content.Shared.Interaction;
+using Robust.Shared.Containers;
+using Robust.Server.Containers;
+using Content.Shared.Containers.ItemSlots;
 
 namespace Content.Server._Goobstation.SmartStorageMachines
 {
@@ -41,6 +44,7 @@ namespace Content.Server._Goobstation.SmartStorageMachines
         [Dependency] private readonly SharedPointLightSystem _light = default!;
         [Dependency] private readonly AudioSystem _audio = default!;
         [Dependency] private readonly PopupSystem _popup = default!;
+        [Dependency] private readonly ItemSlotsSystem _itemSlotsSystem = default!;
 
         public override void Initialize()
         {
@@ -61,7 +65,8 @@ namespace Content.Server._Goobstation.SmartStorageMachines
 
             SubscribeLocalEvent<SmartStorageMachineComponent, SmartStorageMachineSelfDispenseEvent>(OnSelfDispense);
             
-            SubscribeLocalEvent<SmartStorageMachineComponent, InteractUsingEvent>(OnInteractUsing);
+            SubscribeLocalEvent<SmartStorageMachineComponent, EntInsertedIntoContainerMessage>(OnInserted);
+            SubscribeLocalEvent<SmartStorageMachineComponent, MapInitEvent>(OnMapInit, before: new []{typeof(ItemSlotsSystem)});
         }
 
         private void OnMapInit(EntityUid uid, SmartStorageMachineComponent component, MapInitEvent args)
@@ -69,6 +74,22 @@ namespace Content.Server._Goobstation.SmartStorageMachines
             if (HasComp<ApcPowerReceiverComponent>(uid))
             {
                 TryUpdateVisualState(uid, component);
+            }
+
+            for (var i = 0; i < component.NumSlots; i++)
+            {
+                var storageSlotId = SmartStorageMachineComponent.BaseStorageSlotId + i;
+                ItemSlot storageComponent = new();
+                //storageComponent.Whitelist = component.StorageWhitelist;
+                storageComponent.Swap = false;
+                storageComponent.EjectOnBreak = true;
+                storageComponent.DisableEject = true;
+                storageComponent.HideEjectVerb = true;
+
+                component.StorageSlotIds.Add(storageSlotId);
+                component.StorageSlots.Add(storageComponent);
+
+                _itemSlotsSystem.AddItemSlot(uid, component.StorageSlotIds[i], component.StorageSlots[i]);
             }
         }
 
@@ -136,9 +157,9 @@ namespace Content.Server._Goobstation.SmartStorageMachines
             EjectRandom(uid, throwItem: true, forceEject: false, component);
         }
 
-        private void OnInteractUsing(EntityUid uid, SmartStorageMachineComponent component, InteractUsingEvent args)
+        private void OnInserted(EntityUid uid, SmartStorageMachineComponent component, EntInsertedIntoContainerMessage args)
         {
-            if (args.Handled || args.Used == null)
+            if (args.Entity == null)
                 return;
 
             //TODO check if item has a listed tag
@@ -149,14 +170,12 @@ namespace Content.Server._Goobstation.SmartStorageMachines
             //}
 
             //TODO add function for adding individual items
-            TryAddItemToSmartStorage(uid, args.Used, component);
+            TryAddItemToSmartStorage(uid, args.Entity, component);
 
             //TODO change to more appropriate sounds/message
             //_popup.PopupEntity(Loc.GetString("vending-machine-restock-done", ("this", args.Args.Used), ("user", args.Args.User), ("target", uid)), args.Args.User, PopupType.Medium);
 
             //_audio.PlayPvs(restockComponent.SoundRestockDone, uid, AudioParams.Default.WithVolume(-2f).WithVariation(0.2f));
-
-            args.Handled = true;
         }
 
         public void TryAddItemToSmartStorage(EntityUid uid, EntityUid item, SmartStorageMachineComponent? vendComponent = null)
